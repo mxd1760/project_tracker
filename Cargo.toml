@@ -1,0 +1,16 @@
+[package]
+name = "project_tracker"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = "0.4.34"
+directories = "5.0.1"
+egui_winit_vulkano = "0.27.0"
+serde = { version = "1.0.197", features = ["serde_derive"] }
+serde_yaml = "0.9.34"
+vulkano = "0.34.1"
+vulkano-util = "0.34.1"
+winit = "0.28"
