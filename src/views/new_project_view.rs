@@ -1,5 +1,7 @@
 use egui_winit_vulkano::egui;
 
+use crate::{AppActions, View};
+
 const ALL_SKILLS: &[&str] = &[
   "rust",
   "python",
@@ -17,13 +19,11 @@ pub struct NewProjectViewContext{
   pub selected_skills:Vec<String>,
 }
 
-pub fn show(ctx:&egui::Context,data: &mut crate::data::project::Project,context: &mut NewProjectViewContext,ui: &mut egui::Ui) -> bool{
+pub fn show(ctx:&egui::Context,data: &mut crate::data::project::Project,context: &mut NewProjectViewContext,ui: &mut egui::Ui) -> crate::AppActions{
   ui.label("Create A New Project!");
   ui.horizontal(|ui|{
     ui.label("Name:");
-    if ui.text_edit_singleline(&mut data.name).changed(){
-      println!("{}",data.name);
-    };
+    ui.text_edit_singleline(&mut data.name);
   });
   let button = ui.button("+ Skills");
   if button.clicked(){
@@ -49,7 +49,8 @@ pub fn show(ctx:&egui::Context,data: &mut crate::data::project::Project,context:
 
   ui.label(format!("{}",context.selected_skills.len()));
   if ui.button("Submit").clicked(){
-    return true;
+    AppActions::ChangeView(View::AllProjects)
+  }else{
+    AppActions::DoNothing
   }
-  false
 }

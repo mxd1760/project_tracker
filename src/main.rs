@@ -25,15 +25,40 @@ use winit::{
 mod views;
 mod data;
 
+use views::{
+  all_projects_view::AllProjectsViewContext,
+  new_project_view::NewProjectViewContext,
+};
+
 // fn sized_text(ui: &mut egui::Ui, text: impl Into<String>, size: f32) {
 //     ui.label(egui::RichText::new(text).size(size));
 // }
+enum View{
+  AllProjects,
+  EditProject(Option<usize>),
+}
+
+enum AppActions{
+  ChangeView(View),
+  DoNothing
+}
+
+struct AppContext{
+  current_view:View,
+  npv_context:NewProjectViewContext,
+  apv_context:AllProjectsViewContext,
+}
 
 pub fn main() {
     let mut test_data = data::app_data::AppData::default();
-    let mut npv_context = views::new_project_view::NewProjectViewContext{
-      show_skills:false,
-      selected_skills:vec![]
+
+    let mut app_context = AppContext{
+      current_view:View::AllProjects,
+      npv_context: views::new_project_view::NewProjectViewContext{
+        show_skills:false,
+        selected_skills:vec![]
+      },
+      apv_context: AllProjectsViewContext{}
     };
 
 
@@ -88,10 +113,33 @@ pub fn main() {
                 gui.immediate_ui(|gui| {
                     let ctx = gui.context();
                     egui::CentralPanel::default().show(&ctx, |ui| {
-                      if views::new_project_view::show(&ctx,&mut test_data.projects[0],&mut npv_context,ui){
-                        println!("testing");
-                        test_data.save().expect("test failed");
+                      egui::menu::bar(ui,|ui|{
+                        ui.menu_button("file", |ui|{
+                          if ui.button("save").clicked(){
+                            test_data.save().expect("failed to save");
+                          }
+                        })
+                      });
+                      let action_response;
+                      match app_context.current_view{
+                        View::AllProjects => {
+                          action_response = views::all_projects_view::show(&ctx,&mut test_data, &mut app_context.apv_context,ui)
+                        },
+                        View::EditProject(maybe_proj) => {
+                          if let Some(proj_id) = maybe_proj{
+                            action_response = views::new_project_view::show(&ctx,&mut test_data.projects[proj_id],&mut app_context.npv_context,ui)
+                          }else{
+                            action_response = views::new_project_view::show(&ctx,&mut test_data.projects[0],&mut app_context.npv_context,ui)// TODO make new proj
+                          }
+                        }
+                      }
+                      match action_response{
+                        AppActions::ChangeView(new_view) => {
+                          app_context.current_view = new_view
+                        },
+                        AppActions::DoNothing => {}
                       };
+
                     });
                 });
                 // Render UI
