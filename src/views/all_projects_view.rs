@@ -30,14 +30,14 @@ fn draw_project(project:&Project,ui: &mut egui::Ui) -> ProjectResponse{
 
 pub fn show(ctx:&egui::Context,data: &mut crate::data::app_data::AppData,context: &mut AllProjectsViewContext,ui: &mut egui::Ui) -> crate::AppActions{
   let mut deletables = vec![];
-  let mut add = false;
-  egui::CentralPanel::default().show(ctx,|ui|{
+  let add;
+  {
     for project in &data.projects{
       deletables.push(draw_project(project,ui));
     }
     add = ui.button("add new project").clicked();
-
-  });
+  }
+  
   for i in (0..deletables.len()).rev(){
     if deletables[i].edit_me{
       return AppActions::ChangeView(crate::View::EditProject(Some(i)))

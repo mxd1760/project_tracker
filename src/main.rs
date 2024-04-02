@@ -10,6 +10,7 @@
 
 #![allow(clippy::eq_op)]
 
+use data::app_data;
 // use egui::{ScrollArea, TextEdit, TextStyle};
 use egui_winit_vulkano::{egui, Gui, GuiConfig};
 
@@ -117,6 +118,15 @@ pub fn main() {
                         ui.menu_button("file", |ui|{
                           if ui.button("save").clicked(){
                             test_data.save().expect("failed to save");
+                          }
+                          if ui.button("load").clicked(){
+                            match app_data::AppData::load(){
+                              Ok(new_data) => test_data = new_data,
+                              Err(msg) => {
+                                println!("{}",msg);
+                                println!("data not loaded");
+                              }, // old data
+                            };
                           }
                         })
                       });
